@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Telepathic Genie – Prank Answer Page</title>
+  <style>
+    :root{--ink:#111;--muted:#6b7280;--ui:#e5e7eb;--ui2:#cbd5e1;--green:#10b981;--green2:#34d399;--help:#a5f3fc}
+    *{box-sizing:border-box}
+    body{margin:0;background:#fff;color:var(--ink);font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial;text-align:center}
+    .wrap{max-width:840px;margin:0 auto;padding:28px;padding-top:160px}
+    #mediaFrame{position:relative;display:grid;place-items:center}
+    #genieImg, #genieAwake, #genieAnim{width:min(640px,95%);height:auto;margin:10px auto 6px;display:block;border-radius:12px}
+    #genieAwake{display:none}
+    #genieAnim{display:none;background:#000}
+    #status{font-size:20px;margin-top:6px;min-height:28px;font-weight:800}
+    #instruction{margin:10px 0 6px;color:var(--muted)}
+    .input{width:100%;max-width:760px;margin:8px auto;padding:14px 16px;font-size:18px;border:1px solid var(--ui2);border-radius:12px;outline:none}
+    .input:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.25)}
+    .answer{font-size:34px;font-weight:800;margin-top:14px;min-height:40px}
+    /* keep ritual on one line */
+    #stealth{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hidden{display:none!important}
+
+    /* Logo Bar */
+    .logoBar{position:fixed;top:8px;left:0;right:0;display:flex;justify-content:center;z-index:9999}
+    #logoImg{width:min(720px,95vw);height:auto}
+
+    /* Play Again button */
+    #playAgain{opacity:0; margin-top:16px; padding:12px 18px; font-weight:800; border-radius:12px; border:1px solid #059669; background:linear-gradient(180deg,var(--green2),var(--green)); color:#fff; cursor:pointer; position:relative; overflow:hidden}
+    #playAgain.show{animation:poof 1s ease forwards}
+    #playAgain::before, #playAgain::after{content:""; position:absolute; inset:-120% -10% -120% -10%; background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.6), transparent 40%),
+      radial-gradient(circle at 80% 40%, rgba(255,255,255,.5), transparent 45%),
+      radial-gradient(circle at 60% 80%, rgba(255,255,255,.4), transparent 40%);
+      opacity:.65; pointer-events:none; transform:rotate(0deg);
+      animation:sparkle 3s linear infinite}
+
+    @keyframes poof{0%{opacity:0; transform:scale(.92); filter:drop-shadow(0 0 0 rgba(16,185,129,0))}100%{opacity:1; transform:scale(1); filter:drop-shadow(0 0 16px rgba(16,185,129,.55))}}
+    @keyframes sparkle{0%{transform:translateY(0) rotate(0deg)}100%{transform:translateY(33%) rotate(360deg)}}
+
+    /* Corner credit link */
+    .cornerNote{position:fixed;left:10px;bottom:8px;font-size:12px;color:#749ff6;opacity:.9;z-index:9999;text-align:left}
+    .cornerNote a{color:#749ff6(--help);text-decoration:underline dotted;}
+    .cornerNote a:hover{opacity:1.0}
+
+    /* Help modal */
+    #helpModal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:10000}
+    .modalCard{background:#fff; color:#111; width:min(720px,92vw); border-radius:16px; padding:18px 18px 14px; text-align:left; box-shadow:0 30px 80px rgba(0,0,0,.25)}
+    .modalCard h2{margin:6px 0 8px; font-size:20px}
+    .modalCard p{margin:6px 0}
+    .modalCard ol{margin:6px 0 0 1.2em}
+    .modalCard .row{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+    .btn{padding:10px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;color:#111;cursor:pointer}
+  </style>
+</head>
+<body>
+  <header class="logoBar"><img id="logoImg" src="Quantum Larry Logo.png" alt="Quantum Larry — Logo"/></header>
+  <div class="wrap">
+
+    <div id="mediaFrame">
+      <!-- Sleeping image -->
+      <img id="genieImg" src="genie1.png" alt="Sleeping genie on a carpet"/>
+      <!-- Awakening transition video (plays between sleep and awake) -->
+      <video id="genieAnim" preload="none" playsinline poster="genie1.png">
+        <source src="genie-anim1.mp4" type="video/mp4">
+      </video>
+      <!-- Awake image -->
+      <img id="genieAwake" src="genie-wake.png" alt="Awake genie"/>
+    </div>
+
+    <div id="status"></div>
+
+    <p id="instruction">To wake the Genie you must type '<strong>Quantum Larry, Answer my query</strong>'. Then press <strong>Enter</strong>.</p>
+
+    <input id="stealth" class="input" placeholder="Type here…" autocomplete="off" spellcheck="false" />
+
+    <div id="reveal" class="answer"></div>
+    <button id="playAgain" class="hidden">Play again</button>
+  </div>
+
+  <!-- Corner credit & help link -->
+  <div class="cornerNote">Created by Robert Atkinson - &copy;2025     -         
+    <a href="#" id="helpLink">how to use this site.</a>
+  </div>
+
+  <!-- Help modal -->
+  <div id="helpModal">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <h2 id="helpTitle">How to use this site (and trick your friends)</h2>
+      <ol>
+        <li>Type the <strong>secret answer</strong> you want the genie to reveal later. What appears in the box is a fake ritual line.</li>
+        <li>When you finish the secret answer, type a <strong>period</strong>. The page keeps pretending you are still typing the ritual.</li>
+        <li>Press <strong>Enter</strong> to “wake” the genie (an animation plays).</li>
+        <li>Now type the <strong>question</strong> and press Enter again. The genie puts on a show and finally reveals the pre-typed answer.</li>
+        <li>Use the green <strong>Play again</strong> button to reset.</li>
+      </ol>
+      <p><em>Tip:</em> If someone types the ritual line exactly, the genie refuses to answer; they didn’t “rub the lamp right.”</p>
+      <div class="row"><button class="btn" id="closeHelp">Close</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Ritual phrase shown while capturing the secret answer
+    const PHRASE = "Quantum Larry, Answer my query.";
+    const PHRASE_NODOT = PHRASE.replace(/\.$/, "");
+
+    // Elements
+    const genieImg   = document.getElementById('genieImg');
+    const genieAnim  = document.getElementById('genieAnim');
+    const genieAwake = document.getElementById('genieAwake');
+    const status     = document.getElementById('status');
+    const instruction= document.getElementById('instruction');
+    const stealth    = document.getElementById('stealth');
+    const reveal     = document.getElementById('reveal');
+    const playAgain  = document.getElementById('playAgain');
+    const helpLink   = document.getElementById('helpLink');
+    const helpModal  = document.getElementById('helpModal');
+    const closeHelp  = document.getElementById('closeHelp');
+
+    // State
+    let displayedIndex = 0;   // how much of PHRASE is shown in the input
+    let answerBuffer   = ""; // captured characters BEFORE first period
+    let answerLocked   = false; // once we see the first period, we stop recording
+    let phase          = 'sleeping'; // 'sleeping' -> 'awakening' (video) -> 'awake' -> 'answered' | 'locked'
+    let statusCleared  = false; // hide the prompt once user starts typing
+    let rawTyped       = "";  // literal keys typed (to detect if they typed the ritual)
+    let customWakeLine = null; // override wake message
+    let misplayed      = false; // player typed the ritual exactly
+
+    // Utils
+    const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
+    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+    function sanitize(s){ return s.replace(/\s+/g,' ').trim().toLowerCase(); }
+
+    function enforceMask(){
+      stealth.value = PHRASE.slice(0, displayedIndex);
+      try { stealth.setSelectionRange(stealth.value.length, stealth.value.length); } catch {}
+    }
+    function updateRitualLine(){
+      displayedIndex = Math.min(displayedIndex + 1, PHRASE.length);
+      enforceMask();
+    }
+
+    // Typewriter helpers
+    function typeWrite(el, text, speed=35){
+      return new Promise(resolve => {
+        el.textContent = '';
+        let i=0; (function step(){
+          if(i < text.length){ el.textContent += text[i++]; setTimeout(step, speed); }
+          else resolve();
+        })();
+      });
+    }
+    function typeWriteAppend(el, text, speed=35){
+      return new Promise(resolve => {
+        let i=0; (function step(){
+          if(i < text.length){ el.textContent += text[i++]; setTimeout(step, speed); }
+          else resolve();
+        })();
+      });
+    }
+
+    // Start the awakening animation video between sleeping and awake
+    async function playAwakening(){
+      if(phase !== 'sleeping') return;
+      phase = 'awakening';
+      genieImg.style.display = 'none';
+      genieAwake.style.display = 'none';
+      genieAnim.style.display = 'block';
+      try { genieAnim.muted = false; await genieAnim.play(); }
+      catch(e){ try { genieAnim.muted = true; await genieAnim.play(); } catch(e2){ finishAwakening(); return; } }
+    }
+
+    function finishAwakening(){
+      genieAnim.pause();
+      genieAnim.currentTime = 0;
+      genieAnim.style.display = 'none';
+      genieAwake.style.display = 'block';
+
+      const defaultWake = 'You woke me up, What yo you want to ask me?';
+      status.textContent = customWakeLine || defaultWake; // bold via CSS (#status)
+      instruction.style.display = 'none';
+
+      if(misplayed){
+        // lock out questions
+        stealth.value = '';
+        stealth.disabled = true;
+        phase = 'locked';
+        // Show play again after a short pause
+        setTimeout(() => { playAgain.classList.remove('hidden'); requestAnimationFrame(()=>playAgain.classList.add('show')); }, 1200);
+      } else {
+        stealth.value = '';
+        stealth.placeholder = 'Ask your question and press Enter…';
+        phase = 'awake';
+        stealth.focus();
+      }
+    }
+
+    genieAnim.addEventListener('ended', finishAwakening);
+    genieAnim.addEventListener('error', finishAwakening);
+
+    // Lines (5 variations each)
+    const lines1 = [
+      'Hmmmm, let me think!',
+      'Thinking… one sec.',
+      'Let me chew on that…',
+      'Hold up—pondering…',
+      'Processing this wish…'
+    ];
+    const lines2 = [
+      'I need to consult the quantum field…',
+      'Querying the cosmic cache…',
+      'Sampling the superposition…',
+      'Syncing with the astral mainframe…',
+      'Tuning into the ether…'
+    ];
+    const line3Prefixes = [
+      "OK, got it! It's",
+      'Aha! The answer is',
+      'Eureka—',
+      'Crystal clear now:',
+      'The vibes say…'
+    ];
+
+    // Durations (ms)
+    const D1_HOLD = 3000;
+    const D2_HOLD = 2000;
+    const SUSPENSE = 3000;
+    const D3_AFTER = 2000;
+    const SPEED = 35;
+
+    async function runAnswerSequence(){
+      const ans = (answerBuffer || '…nothing?');
+      // Hide all inputs
+      stealth.style.display = 'none';
+
+      await typeWrite(reveal, pick(lines1), SPEED);
+      await delay(D1_HOLD);
+
+      await typeWrite(reveal, pick(lines2), SPEED);
+      await delay(D2_HOLD);
+
+      const prefix = pick(line3Prefixes);
+      await typeWrite(reveal, prefix, SPEED);
+      await delay(SUSPENSE);
+      await typeWriteAppend(reveal, ` ${ans}.`, SPEED);
+      await delay(D3_AFTER);
+
+      playAgain.classList.remove('hidden');
+      requestAnimationFrame(() => playAgain.classList.add('show'));
+    }
+
+    // --------------------------
+    // INPUT LOGIC (robust masking)
+    // --------------------------
+
+    // Keep the ritual mask even if the browser inserts text (mobile, IME, paste, etc.)
+    stealth.addEventListener('beforeinput', (e) => {
+      if(phase === 'sleeping' && e.inputType !== 'deleteContentBackward'){
+        e.preventDefault();
+      }
+    });
+
+    stealth.addEventListener('input', () => {
+      if(phase === 'sleeping'){
+        enforceMask();
+      } else if(phase === 'awake' && !statusCleared && stealth.value.length > 0){
+        status.textContent = '';
+        status.style.display = 'none';
+        statusCleared = true;
+      }
+    });
+
+    stealth.addEventListener('keydown', (e) => {
+      if(phase === 'sleeping'){
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          playAwakening();
+          return;
+        }
+        if(e.key === 'Backspace'){
+          e.preventDefault();
+          updateRitualLine();
+          return;
+        }
+        if(e.key.length === 1){
+          // Track raw typed sequence (to detect exact ritual)
+          rawTyped += e.key;
+          const rawSan = sanitize(rawTyped);
+          if(rawSan === sanitize(PHRASE_NODOT) || rawSan === sanitize(PHRASE)){
+            misplayed = true;
+            customWakeLine = 'Why did you wake me up?  You gotta rub me the right way for me to answer your questions. No answers for you!!!';
+            playAwakening();
+          }
+
+          if(!answerLocked){
+            if(e.key === '.'){
+              answerLocked = true; // do not store period
+            } else {
+              answerBuffer += e.key;
+            }
+          }
+          updateRitualLine();
+          e.preventDefault();
+        }
+        return;
+      }
+
+      if(phase === 'awake'){
+        if(!statusCleared && e.key.length === 1){
+          status.textContent = '';
+          status.style.display = 'none';
+          statusCleared = true;
+        }
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          const q = stealth.value.trim();
+          if(!q) return;
+          phase = 'answered';
+          runAnswerSequence();
+        }
+      }
+    });
+
+    // Play Again behavior
+    playAgain.addEventListener('click', () => { window.location.reload(); });
+
+    // Help modal behavior
+    helpLink.addEventListener('click', (e)=>{ e.preventDefault(); helpModal.style.display='flex'; });
+    closeHelp.addEventListener('click', ()=>{ helpModal.style.display='none'; });
+    helpModal.addEventListener('click', (e)=>{ if(e.target === helpModal) helpModal.style.display='none'; });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && helpModal.style.display==='flex') helpModal.style.display='none'; });
+
+    // Focus to start
+    stealth.focus();
+  </script>
+</body>
+</html>
+
